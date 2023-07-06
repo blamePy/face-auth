@@ -67,9 +67,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (response1.data.text.includes(ci)) {
         const crearResponse = await crearUsuario(ci)
         if (crearResponse === 'OK') {
-          await agregarImagenUsuario(ci, docFrontal)
+          const agregarImgRes = await agregarImagenUsuario(ci, docFrontal)
+          if (agregarImgRes === 'OK') {
+            return res.status(200).json({ message: crearResponse })
+          } else {
+            return res.status(500).json({ message: "Ocurrio un error" })
+          }
         }
-        return res.status(200).json({ message: crearResponse })
+        return res.status(400).json({ message: crearResponse })
       }
     }
 
@@ -86,8 +91,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const crearResponse = await crearUsuario(ci)
         if (crearResponse === 'OK') {
           await agregarImagenUsuario(ci, docFrontal)
+          return res.status(200).json({ message: crearResponse })
         }
-        return res.status(200).json({ message: crearResponse })
+        return res.status(400).json({ message: crearResponse })
       }
     }
 
@@ -97,7 +103,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return
     }
 
-    res.status(204).json({ message: 'No se encontraron coincidencias en el documento.' })
+    res.status(404).json({ message: 'No se encontraron coincidencias en el documento.' })
   } catch (error) {
     res.status(500).json({ message: 'Ocurrio un error en el servidor: ' + error })
   }
